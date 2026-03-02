@@ -1,457 +1,343 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Blind Management - TAM Demo</title>
-    
-    <!-- Bootstrap 5 CSS -->
+    <title>Digital Blind Management - Sriracha Refinery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
     <style>
-        body {
-            background: #f0f4f8;
-            min-height: 100vh;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-        }
-        
-        .stat-card {
-            background: white;
-            border: 4px solid;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
+        body { background: #f0f4f8; min-height: 100vh; padding: 15px; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .main-header { background: linear-gradient(135deg, #48A20E 0%, #94BD00 100%); color: white; padding: 18px 30px; border-radius: 10px; box-shadow: 0 4px 16px rgba(72,162,14,0.3); }
+        .main-header h1 { font-size: 24px; font-weight: 700; margin: 0; }
+        .main-header p { margin: 3px 0 0 0; opacity: 0.9; font-size: 13px; }
+
+        .stat-card { background: white; border: 4px solid; padding: 20px 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .stat-card.total { border-color: #005B99; background: linear-gradient(135deg, #e8f4fd 0%, white 100%); }
         .stat-card.installed { border-color: #EA7400; background: linear-gradient(135deg, #fff4e6 0%, white 100%); }
         .stat-card.verified { border-color: #FFB810; background: linear-gradient(135deg, #fffbea 0%, white 100%); }
         .stat-card.removed { border-color: #48A20E; background: linear-gradient(135deg, #f0f9ec 0%, white 100%); }
-        .stat-card.overdue { border-color: #dc3545; background: linear-gradient(135deg, #ffebee 0%, white 100%); }
-        
-        .stat-number {
-            font-size: 56px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
+        .stat-card.blocking { border-color: #dc3545; background: linear-gradient(135deg, #ffebee 0%, white 100%); }
+        .stat-number { font-size: 48px; font-weight: bold; margin: 5px 0; }
         .stat-card.total .stat-number { color: #005B99; }
         .stat-card.installed .stat-number { color: #EA7400; }
         .stat-card.verified .stat-number { color: #FFB810; }
         .stat-card.removed .stat-number { color: #48A20E; }
-        .stat-card.overdue .stat-number { color: #dc3545; }
-        
-        .stat-label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #555;
-            font-weight: 600;
-        }
-        
-        .table-container {
-            max-height: 400px;
-            overflow-y: auto;
-            background: white;
-        }
-        
-        .checkbox-list {
-            max-height: 350px;
-            overflow-y: auto;
-        }
-        
-        /* Industrial Cards */
-        .card {
-            border: 2px solid #48A20E;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            background: white;
-        }
-        
-        .card-header {
-            background: #48A20E;
-            color: white;
-            border-bottom: none;
-            padding: 18px 24px;
-            font-weight: 600;
-        }
-        
-        .card-header h5 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-            color: white;
-        }
-        
-        /* BCP Status Badge Colors - High Visibility */
-        .badge.bcp-planned { background: #888880; color: white; border-radius: 4px; font-weight: 600; font-size: 13px; padding: 6px 12px; }
-        .badge.bcp-installed { background: #EA7400; color: white; border-radius: 4px; font-weight: 600; font-size: 13px; padding: 6px 12px; }
-        .badge.bcp-verified { background: #FFB810; color: #000; border-radius: 4px; font-weight: 600; font-size: 13px; padding: 6px 12px; }
-        .badge.bcp-removed { background: #48A20E; color: white; border-radius: 4px; font-weight: 600; font-size: 13px; padding: 6px 12px; }
-        
-        /* Card Headers - Color Coded */
-        .card-header.bcp-primary { background: #48A20E; border-color: #48A20E; }
-        .card-header.bcp-info { background: #00B2A9; border-color: #00B2A9; }
-        .card-header.bcp-success { background: #94BD00; border-color: #94BD00; }
-        .card-header.bcp-warning { background: #EA7400; border-color: #EA7400; }
-        .card-header.bcp-secondary { background: #888880; border-color: #888880; }
-        
-        /* Industrial Buttons - Big & Clear */
-        .btn-bcp-primary { background: #48A20E; border: 3px solid #48A20E; color: white; font-weight: 700; font-size: 16px; padding: 15px 30px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-bcp-primary:hover { background: #3a8a0b; border-color: #3a8a0b; color: white; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(72,162,14,0.4); }
-        
-        .btn-bcp-orange { background: #EA7400; border: 3px solid #EA7400; color: white; font-weight: 700; font-size: 16px; padding: 15px 30px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-bcp-orange:hover { background: #c86300; border-color: #c86300; color: white; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(234,116,0,0.4); }
-        
-        .btn-bcp-yellow { background: #FFB810; border: 3px solid #FFB810; color: #000; font-weight: 700; font-size: 16px; padding: 15px 30px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-bcp-yellow:hover { background: #e0a20e; border-color: #e0a20e; color: #000; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,184,16,0.4); }
-        
-        /* Nav Tabs - Industrial */
-        .nav-tabs {
-            border-bottom: 3px solid #48A20E;
-            background: white;
-            padding: 5px;
-            border-radius: 8px 8px 0 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .nav-tabs .nav-link {
-            border: none;
-            color: #555;
-            font-weight: 600;
-            padding: 15px 30px;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .nav-tabs .nav-link.active {
-            background-color: #48A20E;
-            color: white;
-            border-radius: 6px;
-        }
-        
-        .nav-tabs .nav-link:hover {
-            color: #48A20E;
-            background: #f0f9ec;
-            border-radius: 6px;
-        }
-        
-        /* Table - High Contrast */
-        .table {
-            font-size: 15px;
-            color: #333;
-        }
-        
-        .table thead th {
-            background: #f8f9fa;
-            border-bottom: 3px solid #48A20E;
-            font-weight: 700;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #333;
-            padding: 15px 10px;
-        }
-        
-        .table tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .table td {
-            padding: 12px 10px;
-            vertical-align: middle;
-        }
-        
-        /* Alert - High Visibility */
-        .alert {
-            border-radius: 8px;
-            border-left: 5px solid;
-            font-size: 15px;
-            font-weight: 500;
-            padding: 15px 20px;
-        }
-        
-        .alert-info {
-            background: #e3f2fd;
-            border-left-color: #00B2A9;
-            color: #0d47a1;
-        }
-        
-        /* Forms - Easy to Use */
-        .form-control, .form-select {
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            padding: 12px 16px;
-            font-weight: 500;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #48A20E;
-            box-shadow: 0 0 0 4px rgba(72, 162, 14, 0.2);
-            outline: none;
-        }
-        
-        .form-label {
-            font-weight: 700;
-            font-size: 15px;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Header */
-        .main-header {
-            background: linear-gradient(135deg, #48A20E 0%, #94BD00 100%);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(72,162,14,0.3);
-            border: none;
-        }
-        
-        .main-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .main-header p {
-            margin: 5px 0 0 0;
-            opacity: 0.95;
-            font-size: 14px;
-        }
+        .stat-card.blocking .stat-number { color: #dc3545; }
+        .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; }
+
+        .card { border: 2px solid #48A20E; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; }
+        .card-header { background: #48A20E; color: white; border-bottom: none; padding: 14px 20px; font-weight: 600; }
+        .card-header h5 { font-size: 16px; font-weight: 600; margin: 0; color: white; }
+        .card-header.bcp-primary { background: #48A20E; }
+        .card-header.bcp-info { background: #00B2A9; }
+        .card-header.bcp-success { background: #94BD00; }
+        .card-header.bcp-warning { background: #EA7400; }
+        .card-header.bcp-danger { background: #dc3545; }
+        .card-header.bcp-secondary { background: #888880; }
+        .card-header.bcp-dark { background: #333; }
+
+        .badge.st-planned { background: #888880; color: white; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 4px; }
+        .badge.st-installed { background: #EA7400; color: white; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 4px; }
+        .badge.st-verified { background: #FFB810; color: #000; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 4px; }
+        .badge.st-removed { background: #48A20E; color: white; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 4px; }
+
+        .nav-tabs { border-bottom: 3px solid #48A20E; background: white; padding: 5px; border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .nav-tabs .nav-link { border: none; color: #555; font-weight: 600; padding: 12px 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-tabs .nav-link.active { background-color: #48A20E; color: white; border-radius: 6px; }
+        .nav-tabs .nav-link:hover { color: #48A20E; background: #f0f9ec; border-radius: 6px; }
+
+        .table { font-size: 13px; color: #333; margin-bottom: 0; }
+        .table thead th { background: #f8f9fa; border-bottom: 3px solid #48A20E; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #333; padding: 10px 8px; white-space: nowrap; }
+        .table tbody tr:hover { background: #f0f9ec; }
+        .table td { padding: 8px; vertical-align: middle; }
+        .table-container { max-height: 420px; overflow-y: auto; }
+
+        .btn-bcp-primary { background: #48A20E; border: 2px solid #48A20E; color: white; font-weight: 700; font-size: 15px; padding: 12px 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-bcp-primary:hover { background: #3a8a0b; border-color: #3a8a0b; color: white; }
+        .btn-bcp-orange { background: #EA7400; border: 2px solid #EA7400; color: white; font-weight: 700; font-size: 15px; padding: 12px 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-bcp-orange:hover { background: #c86300; border-color: #c86300; color: white; }
+        .btn-bcp-yellow { background: #FFB810; border: 2px solid #FFB810; color: #000; font-weight: 700; font-size: 15px; padding: 12px 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-bcp-yellow:hover { background: #e0a20e; border-color: #e0a20e; color: #000; }
+
+        .form-control, .form-select { border: 2px solid #ddd; border-radius: 6px; font-size: 14px; padding: 10px 14px; font-weight: 500; }
+        .form-control:focus, .form-select:focus { border-color: #48A20E; box-shadow: 0 0 0 3px rgba(72, 162, 14, 0.2); }
+        .form-label { font-weight: 700; font-size: 13px; color: #333; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .eic-header { background: #fffff0; border: 2px solid #ccc; border-radius: 8px; padding: 15px 20px; font-size: 13px; }
+        .eic-header .label { font-weight: 700; color: #555; font-size: 11px; text-transform: uppercase; }
+        .eic-header .value { font-weight: 600; color: #333; font-size: 14px; }
+
+        .type-blind-plate { background: #e8f5e9; }
+        .type-bleeder { background: #fff3e0; }
+        .type-blind-flange { background: #e3f2fd; }
+        .type-close-tag { background: #fce4ec; }
+
+        .pyro-yes { color: #dc3545; font-weight: 700; }
+        .pyro-no { color: #48A20E; }
+        .common-badge { background: #9C27B0; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+
+        .alert { border-radius: 8px; border-left: 5px solid; font-size: 14px; font-weight: 500; padding: 12px 16px; }
+        .alert-info { background: #e3f2fd; border-left-color: #00B2A9; color: #0d47a1; }
+
+        .install-sign, .remove-sign { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .sign-mech { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .sign-opr { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+        .sign-none { color: #bbb; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container-fluid">
-        <!-- Header -->
         <div class="main-header mb-3">
-            <h1><i class="bi bi-building"></i>Blind Management System</h1>
-            <p>Turnaround Maintenance (TAM) - Operational Dashboard</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="bi bi-shield-check"></i> Digital Blind Management System</h1>
+                    <p>Sriracha Work Permit System — Energy Isolation, OPE, EVP &amp; Blind Tracking</p>
+                </div>
+                <div class="text-end" style="font-size:12px; opacity:0.85;">
+                    <div>Sriracha Refinery</div>
+                    <div>TAM 2026</div>
+                </div>
+            </div>
         </div>
 
-        <!-- Bootstrap Tabs -->
         <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard" type="button"><i class="bi bi-speedometer2"></i> Dashboard</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="master-tab" data-bs-toggle="tab" data-bs-target="#master" type="button">
-                    <i class="bi bi-list-ul"></i> Blind Point Master
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#eiList" type="button"><i class="bi bi-list-columns"></i> EI List</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="planning-tab" data-bs-toggle="tab" data-bs-target="#planning" type="button">
-                    <i class="bi bi-clipboard-check"></i> Work Order Planning
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#eicSystem" type="button"><i class="bi bi-folder-plus"></i> EIC System</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="field-tab" data-bs-toggle="tab" data-bs-target="#field" type="button">
-                    <i class="bi bi-tools"></i> Field Execution
-                </button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#field" type="button"><i class="bi bi-tools"></i> Field Execution</button>
             </li>
         </ul>
 
-        <!-- Tab Content -->
         <div class="tab-content" id="mainTabContent">
-            
-            <!-- Dashboard Tab -->
+
+            <!-- ==================== DASHBOARD ==================== -->
             <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
-                <div class="card mb-3">
-                    <div class="card-header bcp-primary">
-                        <h5><i class="bi bi-speedometer2"></i> Control Dashboard</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <select class="form-select" id="dash-eic-filter" onchange="updateDashboard()">
+                            <option value="">-- All EIC Systems --</option>
+                        </select>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3 mb-4">
-                            <div class="col-md">
-                                <div class="stat-card total">
-                                    <div class="stat-label">Total Blinds</div>
-                                    <div class="stat-number" id="stat-total">0</div>
-                                </div>
-                            </div>
-                            <div class="col-md">
-                                <div class="stat-card installed">
-                                    <div class="stat-label">Installed</div>
-                                    <div class="stat-number" id="stat-installed">0</div>
-                                </div>
-                            </div>
-                            <div class="col-md">
-                                <div class="stat-card verified">
-                                    <div class="stat-label">Verified</div>
-                                    <div class="stat-number" id="stat-verified">0</div>
-                                </div>
-                            </div>
-                            <div class="col-md">
-                                <div class="stat-card removed">
-                                    <div class="stat-label">Removed</div>
-                                    <div class="stat-number" id="stat-removed">0</div>
-                                </div>
-                            </div>
-                            <div class="col-md">
-                                <div class="stat-card overdue">
-                                    <div class="stat-label">Blocking Start-up</div>
-                                    <div class="stat-number" id="stat-overdue">0</div>
-                                </div>
-                            </div>
-                        </div>
-                        
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col"><div class="stat-card total"><div class="stat-label">Total Blinds</div><div class="stat-number" id="stat-total">0</div></div></div>
+                    <div class="col"><div class="stat-card installed"><div class="stat-label">Installed</div><div class="stat-number" id="stat-installed">0</div></div></div>
+                    <div class="col"><div class="stat-card verified"><div class="stat-label">Verified</div><div class="stat-number" id="stat-verified">0</div></div></div>
+                    <div class="col"><div class="stat-card removed"><div class="stat-label">Removed</div><div class="stat-number" id="stat-removed">0</div></div></div>
+                    <div class="col"><div class="stat-card blocking"><div class="stat-label">Blocking S/U</div><div class="stat-number" id="stat-blocking">0</div></div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bcp-primary"><h5><i class="bi bi-table"></i> Blind Status Overview</h5></div>
+                    <div class="card-body p-0">
                         <div class="table-container">
-                            <table class="table">
+                            <table class="table table-bordered mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Tag Code</th>
-                                        <th>Unit</th>
-                                        <th>Line No</th>
-                                        <th>Equipment</th>
-                                        <th>Work Order</th>
+                                        <th>No.</th>
+                                        <th>Description</th>
+                                        <th>Blind Type</th>
+                                        <th>Size</th>
+                                        <th>Pyro</th>
+                                        <th>EIC Sys.</th>
                                         <th>Status</th>
-                                        <th>Last Updated</th>
+                                        <th>Install By</th>
+                                        <th>Install Date</th>
+                                        <th>Verify By</th>
+                                        <th>Verify Date</th>
+                                        <th>Remove By</th>
+                                        <th>Remove Date</th>
+                                        <th>Remark</th>
                                     </tr>
                                 </thead>
-                                <tbody id="dashboard-tbody">
-                                </tbody>
+                                <tbody id="dashboard-tbody"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Master Tab -->
-            <div class="tab-pane fade" id="master" role="tabpanel">
+            <!-- ==================== EI LIST (Blind Master) ==================== -->
+            <div class="tab-pane fade" id="eiList" role="tabpanel">
                 <div class="card">
-                    <div class="card-header bcp-info">
-                        <h5><i class="bi bi-list-ul"></i> Blind Point Master</h5>
+                    <div class="card-header bcp-info d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-columns"></i> Positive Isolation WITH BLIND</h5>
+                        <span class="badge bg-white text-dark" id="blind-count">0 items</span>
                     </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <strong><i class="bi bi-info-circle"></i> About Blind Points:</strong>
-                            <p class="mb-0 mt-2">Blind points are permanent locations in the refinery where blind plates can be installed. 
-                            Each point has a unique Tag Code that is used for identification during TAM operations.</p>
-                        </div>
-                        <div class="table-container">
-                            <table class="table">
+                    <div class="card-body p-0">
+                        <div class="table-container" style="max-height:500px;">
+                            <table class="table table-bordered mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Tag Code</th>
-                                        <th>Unit</th>
-                                        <th>Area</th>
-                                        <th>Line No</th>
-                                        <th>Equipment</th>
-                                        <th>Flange</th>
+                                        <th>Blind No.</th>
+                                        <th>Description</th>
+                                        <th>Iso. Type</th>
+                                        <th>Blind Type</th>
+                                        <th>Size (Inch x PSI)</th>
+                                        <th>Air Line</th>
+                                        <th>Pyrophoric</th>
+                                        <th>Critical Flange</th>
+                                        <th>EFD No.</th>
+                                        <th>EIC System</th>
+                                        <th>Remark</th>
                                     </tr>
                                 </thead>
-                                <tbody id="blindpoint-tbody">
-                                </tbody>
+                                <tbody id="eiList-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bcp-success"><h5><i class="bi bi-check2-square"></i> Energy Verification Point (EVP)</h5></div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>EVP No.</th>
+                                        <th>Description / Location</th>
+                                        <th>EIC System</th>
+                                        <th>Install Status</th>
+                                        <th>Verify Status</th>
+                                        <th>Remove Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="evp-tbody"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Planning Tab -->
-            <div class="tab-pane fade" id="planning" role="tabpanel">
-                <div class="card">
-                    <div class="card-header bcp-success d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Work Order Planning</h5>
-                        <button class="btn btn-bcp-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newWOModal">
-                            <i class="bi bi-plus-circle"></i> NEW WORK ORDER
+            <!-- ==================== EIC SYSTEM ==================== -->
+            <div class="tab-pane fade" id="eicSystem" role="tabpanel">
+                <div class="card mb-3">
+                    <div class="card-header bcp-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-folder-plus"></i> EIC System Management</h5>
+                        <button class="btn btn-sm btn-bcp-primary" data-bs-toggle="modal" data-bs-target="#newEICModal">
+                            <i class="bi bi-plus-circle"></i> NEW EIC SYSTEM
                         </button>
                     </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <strong><i class="bi bi-exclamation-triangle"></i> Planning Instructions:</strong>
-                            <ol class="mb-0 mt-2">
-                                <li>Create a new Work Order or select an existing one</li>
-                                <li>Check the blind points that will be used in this work order</li>
-                                <li>Click "Add Selected Blinds to WO" to create planned status</li>
-                            </ol>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>EIC System No.</th>
+                                        <th>Area</th>
+                                        <th>Unit</th>
+                                        <th>Equipment No.</th>
+                                        <th>Equip. Service</th>
+                                        <th>Work Scope</th>
+                                        <th>Blinds</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eic-tbody"></tbody>
+                            </table>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="wo-select" class="form-label">Select Work Order:</label>
-                            <select class="form-select" id="wo-select">
-                                <option value="">-- Select Work Order --</option>
-                            </select>
+                    </div>
+                </div>
+
+                <div id="eic-detail" style="display:none;">
+                    <div class="card">
+                        <div class="card-header bcp-warning">
+                            <h5><i class="bi bi-clipboard-data"></i> EIC Detail: <span id="eic-detail-title"></span></h5>
                         </div>
-                        
-                        <div id="wo-details" style="display: none;">
-                            <div class="alert alert-secondary">
-                                <strong>Description:</strong> <span id="wo-description"></span><br>
-                                <strong>Phase:</strong> <span id="wo-phase"></span>
+                        <div class="card-body">
+                            <div class="eic-header mb-3">
+                                <div class="row g-2">
+                                    <div class="col-md-2"><div class="label">EIC System No.</div><div class="value" id="det-eicNo"></div></div>
+                                    <div class="col-md-1"><div class="label">Area</div><div class="value" id="det-area"></div></div>
+                                    <div class="col-md-2"><div class="label">Unit</div><div class="value" id="det-unit"></div></div>
+                                    <div class="col-md-2"><div class="label">Equipment No.</div><div class="value" id="det-equipNo"></div></div>
+                                    <div class="col-md-1"><div class="label">Service</div><div class="value" id="det-service"></div></div>
+                                    <div class="col-md-4"><div class="label">Work Scope</div><div class="value" id="det-scope"></div></div>
+                                </div>
                             </div>
-                            
-                            <label class="form-label">Select Blind Points for this Work Order:</label>
-                            <div class="checkbox-list border rounded p-3" id="wo-blindpoints">
-                            </div>
-                            
-                            <button class="btn btn-bcp-primary mt-3" onclick="addBlindsToWorkOrder()">
-                                <i class="bi bi-plus-circle"></i> Add Selected Blinds to WO
-                            </button>
+
+                            <h6 class="fw-bold text-uppercase mt-3 mb-2"><i class="bi bi-list-check"></i> Assign Blind Points to this EIC:</h6>
+                            <div class="border rounded p-3" id="eic-blindpoints" style="max-height:300px; overflow-y:auto;"></div>
+                            <button class="btn btn-bcp-primary mt-3" onclick="saveBlindsToEIC()"><i class="bi bi-save"></i> SAVE BLIND ASSIGNMENT</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Field Tab -->
+            <!-- ==================== FIELD EXECUTION ==================== -->
             <div class="tab-pane fade" id="field" role="tabpanel">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="card">
-                            <div class="card-header bcp-warning">
-                                <h5><i class="bi bi-tools"></i> Field Execution</h5>
-                            </div>
+                            <div class="card-header bcp-warning"><h5><i class="bi bi-qr-code-scan"></i> Field Execution</h5></div>
                             <div class="card-body">
                                 <div id="field-alert"></div>
-                                
-                                <div class="mb-4">
-                                    <label for="scan-tag" class="form-label"><i class="bi bi-upc-scan"></i> Scan Blind Tag Code</label>
+
+                                <div class="mb-3">
+                                    <label class="form-label"><i class="bi bi-upc-scan"></i> Scan / Select Blind Tag</label>
                                     <select class="form-select form-select-lg" id="scan-tag">
-                                        <option value="">-- Select Tag Code --</option>
+                                        <option value="">-- Select Blind No. --</option>
                                     </select>
                                 </div>
-                                
+
+                                <div id="blind-info" class="eic-header mb-3" style="display:none;">
+                                    <div class="row g-1">
+                                        <div class="col-6"><div class="label">Blind No.</div><div class="value" id="info-blindNo"></div></div>
+                                        <div class="col-6"><div class="label">EIC System</div><div class="value" id="info-eic"></div></div>
+                                        <div class="col-12 mt-1"><div class="label">Description</div><div class="value" id="info-desc"></div></div>
+                                        <div class="col-4 mt-1"><div class="label">Type</div><div class="value" id="info-type"></div></div>
+                                        <div class="col-4 mt-1"><div class="label">Size</div><div class="value" id="info-size"></div></div>
+                                        <div class="col-4 mt-1"><div class="label">Status</div><div class="value" id="info-status"></div></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Executed By:</label>
+                                    <input type="text" class="form-control" id="field-person" placeholder="Name / Employee ID">
+                                </div>
+
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-bcp-orange btn-lg" onclick="executeFieldAction('Installed')">
-                                        <i class="bi bi-circle-fill"></i> Install Blind
+                                    <button class="btn btn-bcp-orange btn-lg" onclick="executeAction('Installed')">
+                                        <i class="bi bi-wrench"></i> STEP 1 — INSTALL BLIND
                                     </button>
-                                    <button class="btn btn-bcp-yellow btn-lg" onclick="executeFieldAction('Verified')">
-                                        <i class="bi bi-check-circle"></i> Verify Blind
+                                    <button class="btn btn-bcp-yellow btn-lg" onclick="executeAction('Verified')">
+                                        <i class="bi bi-check-circle"></i> STEP 2 — VERIFY BLIND
                                     </button>
-                                    <button class="btn btn-bcp-primary btn-lg" onclick="executeFieldAction('Removed')">
-                                        <i class="bi bi-check-circle-fill"></i> Remove Blind
+                                    <button class="btn btn-bcp-primary btn-lg" onclick="executeAction('Removed')">
+                                        <i class="bi bi-box-arrow-up"></i> STEP 3 — REMOVE BLIND
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6">
+
+                    <div class="col-md-7">
                         <div class="card">
-                            <div class="card-header bcp-secondary">
-                                <h5><i class="bi bi-pin-map"></i> Current Blind Status</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-container">
-                                    <table class="table">
+                            <div class="card-header bcp-secondary"><h5><i class="bi bi-clock-history"></i> Execution Log</h5></div>
+                            <div class="card-body p-0">
+                                <div class="table-container" style="max-height:500px;">
+                                    <table class="table table-bordered mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Tag Code</th>
-                                                <th>WO</th>
-                                                <th>Status</th>
-                                                <th>Updated</th>
+                                                <th>Blind No.</th>
+                                                <th>Description</th>
+                                                <th>Action</th>
+                                                <th>By</th>
+                                                <th>Date/Time</th>
+                                                <th>EIC System</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="status-tbody">
-                                        </tbody>
+                                        <tbody id="log-tbody"></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -463,429 +349,420 @@
         </div>
     </div>
 
-    <!-- Modal: New Work Order -->
-    <div class="modal fade" id="newWOModal" tabindex="-1" aria-labelledby="newWOModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Modal: New EIC System -->
+    <div class="modal fade" id="newEICModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background: #48A20E; color: white;">
-                    <h5 class="modal-title" id="newWOModalLabel"><i class="bi bi-plus-circle"></i> Create New Work Order</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Create New EIC System</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="new-wo-no" class="form-label">Work Order Number:</label>
-                        <input type="text" class="form-control" id="new-wo-no" placeholder="e.g. WO-TAM-2026-005">
-                    </div>
-                    <div class="mb-3">
-                        <label for="new-wo-desc" class="form-label">Description:</label>
-                        <input type="text" class="form-control" id="new-wo-desc" placeholder="e.g. Piping Maintenance">
-                    </div>
-                    <div class="mb-3">
-                        <label for="new-wo-phase" class="form-label">Phase:</label>
-                        <select class="form-select" id="new-wo-phase">
-                            <option value="Shutdown">Shutdown</option>
-                            <option value="Maintenance">Maintenance</option>
-                            <option value="Start-up">Start-up</option>
-                        </select>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">EIC System No.:</label>
+                            <input type="text" class="form-control" id="new-eic-no" placeholder="e.g. 34-03">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Area:</label>
+                            <input type="text" class="form-control" id="new-eic-area" placeholder="e.g. S1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit:</label>
+                            <input type="text" class="form-control" id="new-eic-unit" placeholder="e.g. Plat Post-1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Equipment No.:</label>
+                            <input type="text" class="form-control" id="new-eic-equip" placeholder="e.g. R-3401/2/3/4">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Equipment Service:</label>
+                            <input type="text" class="form-control" id="new-eic-service" placeholder="e.g. N2">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description of Work Scope:</label>
+                            <input type="text" class="form-control" id="new-eic-scope" placeholder="e.g. R-3400 center pipe scallop replacement">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="button" class="btn btn-bcp-primary" onclick="createNewWorkOrder()"><i class="bi bi-check-circle"></i> CREATE</button>
+                    <button type="button" class="btn btn-bcp-primary" onclick="createEIC()"><i class="bi bi-check-circle"></i> CREATE</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
         // ============================================
-        // DATA MODELS
+        // DATA (Based on Sriracha Refinery EI List)
         // ============================================
 
-        // Master data: Blind Points
+        const eicSystems = [
+            {
+                eicNo: '34-03', area: 'S1', unit: 'Plat Post-1', equipmentNo: 'R-3401/2/3/4',
+                equipService: 'N2', workScope: 'R-3400 center pipe scallop replacement & internal inspection',
+                developedBy: 'Thammasit', developedDate: '13-Jan-26'
+            },
+            {
+                eicNo: '34-11', area: 'S1', unit: 'Plat Post-1', equipmentNo: 'D-3419/D-3420',
+                equipService: 'Catalyst', workScope: 'Catalyst handling system maintenance',
+                developedBy: 'Somchai', developedDate: '15-Jan-26'
+            }
+        ];
+
         const blindPoints = [
-            { id: 'BP001', unit: 'CDU-1', area: 'Crude Tower', lineNo: 'L-101-6"-CS', equipment: 'P-101A', flange: 'Suction', tagCode: 'BT-CDU1-001', normalStatus: 'Open' },
-            { id: 'BP002', unit: 'CDU-1', area: 'Crude Tower', lineNo: 'L-102-8"-CS', equipment: 'P-101B', flange: 'Discharge', tagCode: 'BT-CDU1-002', normalStatus: 'Open' },
-            { id: 'BP003', unit: 'CDU-1', area: 'Overhead', lineNo: 'L-201-4"-SS', equipment: 'E-201', flange: 'Inlet', tagCode: 'BT-CDU1-003', normalStatus: 'Open' },
-            { id: 'BP004', unit: 'VDU-1', area: 'Vacuum Tower', lineNo: 'L-301-10"-CS', equipment: 'T-301', flange: 'Bottom', tagCode: 'BT-VDU1-001', normalStatus: 'Open' },
-            { id: 'BP005', unit: 'VDU-1', area: 'Vacuum Tower', lineNo: 'L-302-6"-SS', equipment: 'P-301', flange: 'Suction', tagCode: 'BT-VDU1-002', normalStatus: 'Open' },
-            { id: 'BP006', unit: 'VDU-1', area: 'Ejector System', lineNo: 'L-401-3"-SS', equipment: 'EJ-301', flange: 'Steam', tagCode: 'BT-VDU1-003', normalStatus: 'Open' },
-            { id: 'BP007', unit: 'FCC-1', area: 'Reactor', lineNo: 'L-501-12"-CS', equipment: 'R-501', flange: 'Feed', tagCode: 'BT-FCC1-001', normalStatus: 'Open' },
-            { id: 'BP008', unit: 'FCC-1', area: 'Regenerator', lineNo: 'L-502-14"-CS', equipment: 'R-502', flange: 'Air', tagCode: 'BT-FCC1-002', normalStatus: 'Open' },
-            { id: 'BP009', unit: 'FCC-1', area: 'Main Column', lineNo: 'L-601-8"-CS', equipment: 'T-501', flange: 'Feed', tagCode: 'BT-FCC1-003', normalStatus: 'Open' },
-            { id: 'BP010', unit: 'HCU-1', area: 'Reactor', lineNo: 'L-701-10"-CS', equipment: 'R-701', flange: 'Inlet', tagCode: 'BT-HCU1-001', normalStatus: 'Open' },
-            { id: 'BP011', unit: 'HCU-1', area: 'HP Separator', lineNo: 'L-702-6"-SS', equipment: 'V-701', flange: 'Outlet', tagCode: 'BT-HCU1-002', normalStatus: 'Open' },
-            { id: 'BP012', unit: 'HCU-1', area: 'Recycle Gas', lineNo: 'L-801-8"-SS', equipment: 'C-701', flange: 'Suction', tagCode: 'BT-HCU1-003', normalStatus: 'Open' }
+            { blindNo: 1, description: 'Flange inlet R-3401', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 2, description: 'Flange outlet R-3401', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 3, description: 'Flange inlet R-3402', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 4, description: 'Flange outlet R-3402', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 5, description: 'Flange inlet R-3403', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 6, description: 'Flange outlet R-3403', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 7, description: 'Flange inlet R-3404', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 8, description: 'Flange outlet R-3404', isoType: 'I', blindType: 'Blind Plate', size: '24"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 9, description: 'Flange inlet R-3404 purge gas catalyst collector', isoType: 'I', blindType: 'Blind Plate', size: '1.5"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 10, description: 'Flange 3" catalyst from D-3419 to D-3420', isoType: 'I', blindType: 'Bleeder Blind', size: '3"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-57', eicNo: '34-03', remark: 'Common' },
+            { blindNo: 11, description: 'Flange 1.5" secondary lift gas to D-3420', isoType: 'I', blindType: 'Bleeder Blind', size: '1.5"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-57', eicNo: '34-03', remark: 'Common' },
+            { blindNo: 12, description: 'Flange 1.5" lift gas from X-3412 to D-3420', isoType: 'I', blindType: 'Blind Plate', size: '1.5"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-57', eicNo: '34-03', remark: 'Common' },
+            { blindNo: 13, description: 'Flange downstream second ball valve to D-3419', isoType: 'I', blindType: 'Blind Flange', size: '3"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-50', eicNo: '34-03', remark: 'Common' },
+            { blindNo: 14, description: 'Flange 1.5" H2 purge gas to reduction zone', isoType: 'I', blindType: 'Blind Flange', size: '1.5"x600#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-50', eicNo: '34-03', remark: 'Common' },
+            { blindNo: 15, description: 'Flange upstream EBV-4013', isoType: 'I', blindType: 'Blind Flange', size: '3"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-50', eicNo: '34-03', remark: '' },
+            { blindNo: 16, description: 'Close block valve drain nozzle R-3404 flare side', isoType: 'I', blindType: 'Close & Tag', size: '0.75"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' },
+            { blindNo: 17, description: 'Close block valve drain nozzle R-3404 SRU side', isoType: 'I', blindType: 'Close & Tag', size: '0.75"x300#', airLine: false, pyrophoric: true, criticalFlange: false, efdNo: '34-11', eicNo: '34-03', remark: '' }
         ];
 
-        // Work Orders (with sample blind points assigned)
-        const workOrders = [
-            { woNo: 'WO-TAM-2026-001', description: 'CDU-1 Heat Exchanger Cleaning', phase: 'Shutdown', blindPoints: ['BP001', 'BP002', 'BP003'] },
-            { woNo: 'WO-TAM-2026-002', description: 'VDU-1 Vacuum Tower Inspection', phase: 'Maintenance', blindPoints: ['BP004', 'BP005', 'BP006'] },
-            { woNo: 'WO-TAM-2026-003', description: 'FCC-1 Catalyst Replacement', phase: 'Maintenance', blindPoints: ['BP007', 'BP008', 'BP009'] },
-            { woNo: 'WO-TAM-2026-004', description: 'HCU-1 Reactor Maintenance', phase: 'Start-up', blindPoints: ['BP010', 'BP011', 'BP012'] }
+        const evpPoints = [
+            { evpNo: 'EVP-1', description: 'Open block valve to PGP2-4017 (Pathway valve)', eicNo: '34-03' },
+            { evpNo: 'EVP-2', description: 'Open drain block valve PGP2-4017', eicNo: '34-03' },
+            { evpNo: 'EVP-3', description: 'Open block valve to PGP2-4018 (Pathway valve)', eicNo: '34-03' },
+            { evpNo: 'EVP-4', description: 'Open drain block valve PGP2-4018', eicNo: '34-03' }
         ];
 
-        // Blind Status (with sample data for demo)
+        // Sample tracking data
         let blindStatuses = [
-            // WO-TAM-2026-001: CDU-1 (Shutdown phase - have installed blinds)
-            { blindPointId: 'BP001', workOrderNo: 'WO-TAM-2026-001', status: 'Installed', lastUpdated: '2026-02-05 08:30:15' },
-            { blindPointId: 'BP002', workOrderNo: 'WO-TAM-2026-001', status: 'Verified', lastUpdated: '2026-02-05 10:15:42' },
-            { blindPointId: 'BP003', workOrderNo: 'WO-TAM-2026-001', status: 'Installed', lastUpdated: '2026-02-05 14:20:33' },
-            
-            // WO-TAM-2026-002: VDU-1 (Maintenance phase - verified blinds)
-            { blindPointId: 'BP004', workOrderNo: 'WO-TAM-2026-002', status: 'Verified', lastUpdated: '2026-02-04 16:45:22' },
-            { blindPointId: 'BP005', workOrderNo: 'WO-TAM-2026-002', status: 'Verified', lastUpdated: '2026-02-04 17:30:11' },
-            { blindPointId: 'BP006', workOrderNo: 'WO-TAM-2026-002', status: 'Installed', lastUpdated: '2026-02-05 09:10:05' },
-            
-            // WO-TAM-2026-003: FCC-1 (Maintenance phase - some removed)
-            { blindPointId: 'BP007', workOrderNo: 'WO-TAM-2026-003', status: 'Removed', lastUpdated: '2026-02-05 15:20:18' },
-            { blindPointId: 'BP008', workOrderNo: 'WO-TAM-2026-003', status: 'Verified', lastUpdated: '2026-02-05 11:45:30' },
-            { blindPointId: 'BP009', workOrderNo: 'WO-TAM-2026-003', status: 'Planned', lastUpdated: '2026-02-03 13:00:00' },
-            
-            // WO-TAM-2026-004: HCU-1 (Start-up phase - mostly removed)
-            { blindPointId: 'BP010', workOrderNo: 'WO-TAM-2026-004', status: 'Removed', lastUpdated: '2026-02-06 07:30:44' },
-            { blindPointId: 'BP011', workOrderNo: 'WO-TAM-2026-004', status: 'Removed', lastUpdated: '2026-02-06 08:15:22' },
-            { blindPointId: 'BP012', workOrderNo: 'WO-TAM-2026-004', status: 'Verified', lastUpdated: '2026-02-05 18:40:10' }
+            { blindNo: 1, status: 'Installed', installBy: 'MECH-A01', installDate: '2026-02-20 08:30', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 2, status: 'Verified', installBy: 'MECH-A01', installDate: '2026-02-20 09:15', verifyBy: 'OPR-B01', verifyDate: '2026-02-20 10:00', removeBy: '', removeDate: '' },
+            { blindNo: 3, status: 'Installed', installBy: 'MECH-A02', installDate: '2026-02-20 11:20', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 4, status: 'Verified', installBy: 'MECH-A02', installDate: '2026-02-20 13:00', verifyBy: 'OPR-B01', verifyDate: '2026-02-20 14:30', removeBy: '', removeDate: '' },
+            { blindNo: 5, status: 'Installed', installBy: 'MECH-A01', installDate: '2026-02-21 08:00', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 6, status: 'Planned', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 7, status: 'Planned', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 8, status: 'Planned', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 9, status: 'Verified', installBy: 'MECH-A03', installDate: '2026-02-19 16:00', verifyBy: 'OPR-B02', verifyDate: '2026-02-19 17:00', removeBy: '', removeDate: '' },
+            { blindNo: 10, status: 'Removed', installBy: 'MECH-A01', installDate: '2026-02-18 08:00', verifyBy: 'OPR-B01', verifyDate: '2026-02-18 09:00', removeBy: 'MECH-A01', removeDate: '2026-02-28 10:00' },
+            { blindNo: 11, status: 'Removed', installBy: 'MECH-A01', installDate: '2026-02-18 10:30', verifyBy: 'OPR-B01', verifyDate: '2026-02-18 11:00', removeBy: 'MECH-A02', removeDate: '2026-02-28 11:30' },
+            { blindNo: 12, status: 'Verified', installBy: 'MECH-A02', installDate: '2026-02-18 13:00', verifyBy: 'OPR-B02', verifyDate: '2026-02-18 14:00', removeBy: '', removeDate: '' },
+            { blindNo: 13, status: 'Verified', installBy: 'MECH-A03', installDate: '2026-02-19 08:00', verifyBy: 'OPR-B01', verifyDate: '2026-02-19 09:30', removeBy: '', removeDate: '' },
+            { blindNo: 14, status: 'Installed', installBy: 'MECH-A03', installDate: '2026-02-19 10:00', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 15, status: 'Installed', installBy: 'MECH-A02', installDate: '2026-02-21 09:30', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { blindNo: 16, status: 'Verified', installBy: 'MECH-A01', installDate: '2026-02-19 14:00', verifyBy: 'OPR-B02', verifyDate: '2026-02-19 15:00', removeBy: '', removeDate: '' },
+            { blindNo: 17, status: 'Verified', installBy: 'MECH-A01', installDate: '2026-02-19 14:30', verifyBy: 'OPR-B02', verifyDate: '2026-02-19 15:30', removeBy: '', removeDate: '' }
         ];
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
+        let evpStatuses = [
+            { evpNo: 'EVP-1', installBy: 'OPR-B01', installDate: '2026-02-20 07:00', verifyBy: 'OPR-B02', verifyDate: '2026-02-20 07:30', removeBy: '', removeDate: '' },
+            { evpNo: 'EVP-2', installBy: 'OPR-B01', installDate: '2026-02-20 07:10', verifyBy: 'OPR-B02', verifyDate: '2026-02-20 07:35', removeBy: '', removeDate: '' },
+            { evpNo: 'EVP-3', installBy: 'OPR-B01', installDate: '2026-02-20 07:20', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' },
+            { evpNo: 'EVP-4', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' }
+        ];
 
+        let executionLog = [];
+
+        // ============================================
+        // INIT
+        // ============================================
         function init() {
-            renderBlindPointMaster();
-            populateWorkOrderSelects();
-            populateScanTagSelect();
+            renderEIList();
+            renderEVP();
+            renderEICTable();
+            populateScanSelect();
+            populateDashFilter();
             updateDashboard();
-            updateStatusTable();
         }
 
         // ============================================
-        // BLIND POINT MASTER
+        // EI LIST
         // ============================================
-
-        function renderBlindPointMaster() {
-            const tbody = document.getElementById('blindpoint-tbody');
+        function renderEIList() {
+            const tbody = document.getElementById('eiList-tbody');
             tbody.innerHTML = '';
-            
             blindPoints.forEach(bp => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${bp.tagCode}</strong></td>
-                        <td>${bp.unit}</td>
-                        <td>${bp.area}</td>
-                        <td>${bp.lineNo}</td>
-                        <td>${bp.equipment}</td>
-                        <td>${bp.flange}</td>
-                    </tr>
-                `;
+                const typeClass = bp.blindType === 'Blind Plate' ? 'type-blind-plate' :
+                                  bp.blindType === 'Bleeder Blind' ? 'type-bleeder' :
+                                  bp.blindType === 'Blind Flange' ? 'type-blind-flange' : 'type-close-tag';
+                const remarkHtml = bp.remark === 'Common' ? '<span class="common-badge">Common</span>' : (bp.remark || '');
+                tbody.innerHTML += `<tr>
+                    <td class="text-center fw-bold">${bp.blindNo}${bp.remark === 'Common' ? '*' : ''}</td>
+                    <td>${bp.description}</td>
+                    <td class="text-center">${bp.isoType}</td>
+                    <td class="${typeClass} text-center"><strong>${bp.blindType}</strong></td>
+                    <td class="text-center">${bp.size}</td>
+                    <td class="text-center">${bp.airLine ? '<span class="pyro-yes">Yes</span>' : 'No'}</td>
+                    <td class="text-center">${bp.pyrophoric ? '<span class="pyro-yes">Yes</span>' : '<span class="pyro-no">No</span>'}</td>
+                    <td class="text-center">${bp.criticalFlange ? '<span class="pyro-yes">Yes</span>' : 'No'}</td>
+                    <td class="text-center">${bp.efdNo}</td>
+                    <td class="text-center">${bp.eicNo}</td>
+                    <td>${remarkHtml}</td>
+                </tr>`;
+            });
+            document.getElementById('blind-count').textContent = blindPoints.length + ' items';
+        }
+
+        function renderEVP() {
+            const tbody = document.getElementById('evp-tbody');
+            tbody.innerHTML = '';
+            evpPoints.forEach(evp => {
+                const st = evpStatuses.find(s => s.evpNo === evp.evpNo) || {};
+                const inst = st.installBy ? `<span class="badge st-installed">${st.installBy}</span><br><small>${st.installDate}</small>` : '<span class="text-muted">—</span>';
+                const ver = st.verifyBy ? `<span class="badge st-verified">${st.verifyBy}</span><br><small>${st.verifyDate}</small>` : '<span class="text-muted">—</span>';
+                const rem = st.removeBy ? `<span class="badge st-removed">${st.removeBy}</span><br><small>${st.removeDate}</small>` : '<span class="text-muted">—</span>';
+                tbody.innerHTML += `<tr>
+                    <td class="fw-bold">${evp.evpNo}</td>
+                    <td>${evp.description}</td>
+                    <td class="text-center">${evp.eicNo}</td>
+                    <td class="text-center">${inst}</td>
+                    <td class="text-center">${ver}</td>
+                    <td class="text-center">${rem}</td>
+                </tr>`;
             });
         }
 
         // ============================================
-        // WORK ORDER PLANNING
+        // EIC SYSTEM
         // ============================================
-
-        function createNewWorkOrder() {
-            const woNo = document.getElementById('new-wo-no').value.trim();
-            const woDesc = document.getElementById('new-wo-desc').value.trim();
-            const woPhase = document.getElementById('new-wo-phase').value;
-            
-            // Validation
-            if (!woNo || !woDesc) {
-                alert('Please fill in Work Order Number and Description');
-                return;
-            }
-            
-            // Check duplicate
-            const exists = workOrders.find(wo => wo.woNo === woNo);
-            if (exists) {
-                alert('Work Order Number already exists!');
-                return;
-            }
-            
-            // Add new work order
-            workOrders.push({
-                woNo: woNo,
-                description: woDesc,
-                phase: woPhase,
-                blindPoints: []
+        function renderEICTable() {
+            const tbody = document.getElementById('eic-tbody');
+            tbody.innerHTML = '';
+            eicSystems.forEach(eic => {
+                const assigned = blindPoints.filter(bp => bp.eicNo === eic.eicNo);
+                const sts = blindStatuses.filter(bs => assigned.some(bp => bp.blindNo === bs.blindNo));
+                const allRemoved = sts.length > 0 && sts.every(s => s.status === 'Removed');
+                const hasPlanned = sts.some(s => s.status === 'Planned');
+                const statusLabel = sts.length === 0 ? '<span class="badge bg-secondary">No Blinds</span>' :
+                                   allRemoved ? '<span class="badge st-removed">All Removed</span>' :
+                                   hasPlanned ? '<span class="badge st-planned">In Progress</span>' :
+                                   '<span class="badge st-installed">Active</span>';
+                tbody.innerHTML += `<tr style="cursor:pointer;" onclick="showEICDetail('${eic.eicNo}')">
+                    <td class="fw-bold">${eic.eicNo}</td>
+                    <td>${eic.area}</td>
+                    <td>${eic.unit}</td>
+                    <td>${eic.equipmentNo}</td>
+                    <td>${eic.equipService}</td>
+                    <td>${eic.workScope}</td>
+                    <td class="text-center"><strong>${assigned.length}</strong></td>
+                    <td class="text-center">${statusLabel}</td>
+                </tr>`;
             });
-            
-            // Refresh dropdown
-            populateWorkOrderSelects();
-            
-            // Select the new WO
-            document.getElementById('wo-select').value = woNo;
-            onWorkOrderChange();
-            
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newWOModal'));
-            modal.hide();
-            
-            // Clear form
-            document.getElementById('new-wo-no').value = '';
-            document.getElementById('new-wo-desc').value = '';
-            document.getElementById('new-wo-phase').value = 'Shutdown';
-            
-            alert(`Work Order "${woNo}" created successfully!`);
         }
 
-        function populateWorkOrderSelects() {
-            const woSelect = document.getElementById('wo-select');
-            
-            // Clear existing options except first
-            woSelect.innerHTML = '<option value="">-- Select Work Order --</option>';
-            
-            workOrders.forEach(wo => {
-                woSelect.innerHTML += `<option value="${wo.woNo}">${wo.woNo} - ${wo.description}</option>`;
-            });
+        function showEICDetail(eicNo) {
+            const eic = eicSystems.find(e => e.eicNo === eicNo);
+            if (!eic) return;
+            document.getElementById('eic-detail').style.display = 'block';
+            document.getElementById('eic-detail-title').textContent = eicNo;
+            document.getElementById('det-eicNo').textContent = eicNo;
+            document.getElementById('det-area').textContent = eic.area;
+            document.getElementById('det-unit').textContent = eic.unit;
+            document.getElementById('det-equipNo').textContent = eic.equipmentNo;
+            document.getElementById('det-service').textContent = eic.equipService;
+            document.getElementById('det-scope').textContent = eic.workScope;
 
-            // Remove old listener to avoid duplicates
-            woSelect.removeEventListener('change', onWorkOrderChange);
-            woSelect.addEventListener('change', onWorkOrderChange);
-        }
-
-        function onWorkOrderChange(e) {
-            const woNo = e.target.value;
-            const woDetails = document.getElementById('wo-details');
-            
-            if (woNo === '') {
-                woDetails.style.display = 'none';
-                return;
-            }
-
-            const wo = workOrders.find(w => w.woNo === woNo);
-            if (!wo) return;
-
-            document.getElementById('wo-description').textContent = wo.description;
-            document.getElementById('wo-phase').textContent = wo.phase;
-            woDetails.style.display = 'block';
-
-            const container = document.getElementById('wo-blindpoints');
+            const container = document.getElementById('eic-blindpoints');
             container.innerHTML = '';
-            
             blindPoints.forEach(bp => {
-                const isChecked = wo.blindPoints.includes(bp.id);
-                container.innerHTML += `
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="bp-${bp.id}" value="${bp.id}" ${isChecked ? 'checked' : ''}>
-                        <label class="form-check-label" for="bp-${bp.id}">
-                            <strong>${bp.tagCode}</strong> - ${bp.unit} / ${bp.lineNo} / ${bp.equipment}
-                        </label>
-                    </div>
-                `;
+                const checked = bp.eicNo === eicNo;
+                container.innerHTML += `<div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" id="eic-bp-${bp.blindNo}" value="${bp.blindNo}" ${checked ? 'checked' : ''}>
+                    <label class="form-check-label" for="eic-bp-${bp.blindNo}">
+                        <strong>#${bp.blindNo}</strong> — ${bp.description} <small class="text-muted">(${bp.blindType}, ${bp.size})</small>
+                        ${bp.remark === 'Common' ? '<span class="common-badge ms-1">Common</span>' : ''}
+                    </label>
+                </div>`;
             });
         }
 
-        function addBlindsToWorkOrder() {
-            const woNo = document.getElementById('wo-select').value;
-            if (!woNo) {
-                showAlert('warning', 'Please select a Work Order first');
-                return;
-            }
-
-            const wo = workOrders.find(w => w.woNo === woNo);
-            if (!wo) return;
-
-            const checkboxes = document.querySelectorAll('#wo-blindpoints input[type="checkbox"]:checked');
-            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-
-            wo.blindPoints = selectedIds;
-
-            selectedIds.forEach(bpId => {
-                const existing = blindStatuses.find(bs => bs.blindPointId === bpId && bs.workOrderNo === woNo);
-                if (!existing) {
-                    blindStatuses.push({
-                        blindPointId: bpId,
-                        workOrderNo: woNo,
-                        status: 'Planned',
-                        lastUpdated: new Date().toLocaleString('th-TH')
-                    });
+        function saveBlindsToEIC() {
+            const eicNo = document.getElementById('det-eicNo').textContent;
+            document.querySelectorAll('#eic-blindpoints input[type="checkbox"]').forEach(cb => {
+                const bpNo = parseInt(cb.value);
+                const bp = blindPoints.find(b => b.blindNo === bpNo);
+                if (bp) {
+                    if (cb.checked) {
+                        bp.eicNo = eicNo;
+                        if (!blindStatuses.find(bs => bs.blindNo === bpNo)) {
+                            blindStatuses.push({ blindNo: bpNo, status: 'Planned', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' });
+                        }
+                    } else if (bp.eicNo === eicNo) {
+                        bp.eicNo = '';
+                    }
                 }
             });
-
-            blindStatuses = blindStatuses.filter(bs => {
-                if (bs.workOrderNo === woNo) {
-                    return selectedIds.includes(bs.blindPointId);
-                }
-                return true;
-            });
-
+            renderEIList();
+            renderEICTable();
             updateDashboard();
-            updateStatusTable();
-            showAlert('success', `✅ Added ${selectedIds.length} blind(s) to ${woNo}`);
+            alert('Blind assignment saved!');
+        }
+
+        function createEIC() {
+            const eicNo = document.getElementById('new-eic-no').value.trim();
+            const area = document.getElementById('new-eic-area').value.trim();
+            const unit = document.getElementById('new-eic-unit').value.trim();
+            const equip = document.getElementById('new-eic-equip').value.trim();
+            const service = document.getElementById('new-eic-service').value.trim();
+            const scope = document.getElementById('new-eic-scope').value.trim();
+            if (!eicNo || !scope) { alert('Please fill EIC System No. and Work Scope'); return; }
+            if (eicSystems.find(e => e.eicNo === eicNo)) { alert('EIC System No. already exists!'); return; }
+            eicSystems.push({ eicNo, area, unit, equipmentNo: equip, equipService: service, workScope: scope, developedBy: '', developedDate: '' });
+            renderEICTable();
+            populateDashFilter();
+            bootstrap.Modal.getInstance(document.getElementById('newEICModal')).hide();
+            document.querySelectorAll('#newEICModal input').forEach(i => i.value = '');
+            alert('EIC System "' + eicNo + '" created!');
         }
 
         // ============================================
         // FIELD EXECUTION
         // ============================================
-
-        function populateScanTagSelect() {
-            const scanTag = document.getElementById('scan-tag');
-            
+        function populateScanSelect() {
+            const sel = document.getElementById('scan-tag');
+            sel.innerHTML = '<option value="">-- Select Blind No. --</option>';
             blindPoints.forEach(bp => {
-                scanTag.innerHTML += `<option value="${bp.tagCode}">${bp.tagCode} - ${bp.unit} / ${bp.equipment}</option>`;
+                sel.innerHTML += `<option value="${bp.blindNo}">#${bp.blindNo} — ${bp.description} (${bp.blindType})</option>`;
+            });
+            sel.addEventListener('change', showBlindInfo);
+        }
+
+        function showBlindInfo() {
+            const blindNo = parseInt(document.getElementById('scan-tag').value);
+            const panel = document.getElementById('blind-info');
+            if (!blindNo) { panel.style.display = 'none'; return; }
+            const bp = blindPoints.find(b => b.blindNo === blindNo);
+            const bs = blindStatuses.find(s => s.blindNo === blindNo);
+            if (!bp) return;
+            panel.style.display = 'block';
+            document.getElementById('info-blindNo').textContent = '#' + bp.blindNo;
+            document.getElementById('info-eic').textContent = bp.eicNo || '—';
+            document.getElementById('info-desc').textContent = bp.description;
+            document.getElementById('info-type').textContent = bp.blindType;
+            document.getElementById('info-size').textContent = bp.size;
+            const status = bs ? bs.status : 'Not Assigned';
+            const cls = { Planned: 'st-planned', Installed: 'st-installed', Verified: 'st-verified', Removed: 'st-removed' }[status] || 'bg-secondary';
+            document.getElementById('info-status').innerHTML = `<span class="badge ${cls}">${status}</span>`;
+        }
+
+        function executeAction(action) {
+            const blindNo = parseInt(document.getElementById('scan-tag').value);
+            const person = document.getElementById('field-person').value.trim() || 'Unknown';
+            if (!blindNo) { showFieldAlert('warning', 'Please select a Blind Tag'); return; }
+
+            let bs = blindStatuses.find(s => s.blindNo === blindNo);
+            if (!bs) {
+                bs = { blindNo, status: 'Planned', installBy: '', installDate: '', verifyBy: '', verifyDate: '', removeBy: '', removeDate: '' };
+                blindStatuses.push(bs);
+            }
+
+            const now = new Date().toLocaleString('en-GB', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+            const bp = blindPoints.find(b => b.blindNo === blindNo);
+
+            if (action === 'Installed') {
+                bs.status = 'Installed'; bs.installBy = person; bs.installDate = now;
+            } else if (action === 'Verified') {
+                if (bs.status !== 'Installed') { showFieldAlert('warning', 'Blind must be INSTALLED before Verify'); return; }
+                bs.status = 'Verified'; bs.verifyBy = person; bs.verifyDate = now;
+            } else if (action === 'Removed') {
+                if (bs.status !== 'Verified') { showFieldAlert('warning', 'Blind must be VERIFIED before Remove'); return; }
+                bs.status = 'Removed'; bs.removeBy = person; bs.removeDate = now;
+            }
+
+            executionLog.unshift({ blindNo, description: bp?.description || '', action, by: person, dateTime: now, eicNo: bp?.eicNo || '' });
+            renderLog();
+            updateDashboard();
+            showBlindInfo();
+            showFieldAlert('success', '&#10003; Blind #' + blindNo + ' — ' + action.toUpperCase() + ' by ' + person);
+        }
+
+        function renderLog() {
+            const tbody = document.getElementById('log-tbody');
+            tbody.innerHTML = '';
+            executionLog.forEach(log => {
+                const cls = { Installed: 'st-installed', Verified: 'st-verified', Removed: 'st-removed' }[log.action] || 'bg-secondary';
+                tbody.innerHTML += `<tr>
+                    <td class="fw-bold">#${log.blindNo}</td>
+                    <td><small>${log.description}</small></td>
+                    <td><span class="badge ${cls}">${log.action}</span></td>
+                    <td>${log.by}</td>
+                    <td><small>${log.dateTime}</small></td>
+                    <td><small>${log.eicNo}</small></td>
+                </tr>`;
             });
         }
 
-        function executeFieldAction(action) {
-            const tagCode = document.getElementById('scan-tag').value;
-
-            if (!tagCode) {
-                showAlert('warning', 'Please select a Blind Tag');
-                return;
-            }
-
-            const blindPoint = blindPoints.find(bp => bp.tagCode === tagCode);
-            if (!blindPoint) {
-                showAlert('danger', 'Invalid Tag Code');
-                return;
-            }
-
-            // Auto-detect Work Order from Tag
-            const matchingWOs = workOrders.filter(wo => wo.blindPoints.includes(blindPoint.id));
-            
-            if (matchingWOs.length === 0) {
-                showAlert('danger', `Tag ${tagCode} is not assigned to any Work Order. Please add it in Planning first.`);
-                return;
-            }
-
-            // Use first matching WO (or latest active one)
-            const woNo = matchingWOs[0].woNo;
-            
-            let blindStatus = blindStatuses.find(bs => 
-                bs.blindPointId === blindPoint.id && bs.workOrderNo === woNo
-            );
-
-            if (!blindStatus) {
-                blindStatus = {
-                    blindPointId: blindPoint.id,
-                    workOrderNo: woNo,
-                    status: 'Planned',
-                    lastUpdated: new Date().toLocaleString('th-TH')
-                };
-                blindStatuses.push(blindStatus);
-            }
-
-            const oldStatus = blindStatus.status;
-            blindStatus.status = action;
-            blindStatus.lastUpdated = new Date().toLocaleString('th-TH');
-
-            const statusMap = {
-                'Installed': 'Blind INSTALLED',
-                'Verified': 'Blind VERIFIED',
-                'Removed': 'Blind REMOVED'
-            };
-
-            showAlert('success', `${statusMap[action]} - ${tagCode} [${woNo}]`);
-
-            updateDashboard();
-            updateStatusTable();
+        function showFieldAlert(type, msg) {
+            const el = document.getElementById('field-alert');
+            el.className = 'alert alert-' + type + ' alert-dismissible fade show';
+            el.innerHTML = msg + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            setTimeout(function() { el.className = ''; el.innerHTML = ''; }, 5000);
         }
 
         // ============================================
         // DASHBOARD
         // ============================================
+        function populateDashFilter() {
+            const sel = document.getElementById('dash-eic-filter');
+            sel.innerHTML = '<option value="">-- All EIC Systems --</option>';
+            eicSystems.forEach(eic => {
+                sel.innerHTML += `<option value="${eic.eicNo}">${eic.eicNo} — ${eic.workScope}</option>`;
+            });
+        }
 
         function updateDashboard() {
-            const stats = {
-                total: blindStatuses.length,
-                installed: blindStatuses.filter(bs => bs.status === 'Installed').length,
-                verified: blindStatuses.filter(bs => bs.status === 'Verified').length,
-                removed: blindStatuses.filter(bs => bs.status === 'Removed').length,
-                overdue: blindStatuses.filter(bs => bs.status !== 'Removed' && bs.status !== 'Planned').length
-            };
+            const filterEIC = document.getElementById('dash-eic-filter').value;
+            let filtered = blindPoints;
+            if (filterEIC) filtered = blindPoints.filter(bp => bp.eicNo === filterEIC);
+            const sts = blindStatuses.filter(bs => filtered.some(bp => bp.blindNo === bs.blindNo));
 
+            const stats = {
+                total: sts.length,
+                installed: sts.filter(s => s.status === 'Installed').length,
+                verified: sts.filter(s => s.status === 'Verified').length,
+                removed: sts.filter(s => s.status === 'Removed').length,
+                blocking: sts.filter(s => s.status === 'Installed' || s.status === 'Verified').length
+            };
             document.getElementById('stat-total').textContent = stats.total;
             document.getElementById('stat-installed').textContent = stats.installed;
             document.getElementById('stat-verified').textContent = stats.verified;
             document.getElementById('stat-removed').textContent = stats.removed;
-            document.getElementById('stat-overdue').textContent = stats.overdue;
+            document.getElementById('stat-blocking').textContent = stats.blocking;
 
             const tbody = document.getElementById('dashboard-tbody');
             tbody.innerHTML = '';
-
-            blindStatuses.forEach(bs => {
-                const bp = blindPoints.find(p => p.id === bs.blindPointId);
+            sts.forEach(bs => {
+                const bp = blindPoints.find(b => b.blindNo === bs.blindNo);
                 if (!bp) return;
-
-                const badgeClass = {
-                    'Planned': 'bcp-planned',
-                    'Installed': 'bcp-installed',
-                    'Verified': 'bcp-verified',
-                    'Removed': 'bcp-removed'
-                }[bs.status];
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${bp.tagCode}</strong></td>
-                        <td>${bp.unit}</td>
-                        <td>${bp.lineNo}</td>
-                        <td>${bp.equipment}</td>
-                        <td>${bs.workOrderNo}</td>
-                        <td><span class="badge ${badgeClass}">${bs.status}</span></td>
-                        <td>${bs.lastUpdated}</td>
-                    </tr>
-                `;
+                const stCls = { Planned: 'st-planned', Installed: 'st-installed', Verified: 'st-verified', Removed: 'st-removed' }[bs.status];
+                const typeCls = bp.blindType === 'Blind Plate' ? 'type-blind-plate' :
+                                bp.blindType === 'Bleeder Blind' ? 'type-bleeder' :
+                                bp.blindType === 'Blind Flange' ? 'type-blind-flange' : 'type-close-tag';
+                tbody.innerHTML += `<tr>
+                    <td class="fw-bold text-center">${bp.blindNo}${bp.remark === 'Common' ? '*' : ''}</td>
+                    <td>${bp.description}</td>
+                    <td class="${typeCls} text-center"><small>${bp.blindType}</small></td>
+                    <td class="text-center">${bp.size}</td>
+                    <td class="text-center">${bp.pyrophoric ? '<span class="pyro-yes">Yes</span>' : 'No'}</td>
+                    <td class="text-center">${bp.eicNo}</td>
+                    <td class="text-center"><span class="badge ${stCls}">${bs.status}</span></td>
+                    <td>${bs.installBy ? '<span class="install-sign sign-mech">' + bs.installBy + '</span>' : '<span class="sign-none">—</span>'}</td>
+                    <td><small>${bs.installDate || '—'}</small></td>
+                    <td>${bs.verifyBy ? '<span class="install-sign sign-opr">' + bs.verifyBy + '</span>' : '<span class="sign-none">—</span>'}</td>
+                    <td><small>${bs.verifyDate || '—'}</small></td>
+                    <td>${bs.removeBy ? '<span class="install-sign sign-mech">' + bs.removeBy + '</span>' : '<span class="sign-none">—</span>'}</td>
+                    <td><small>${bs.removeDate || '—'}</small></td>
+                    <td>${bp.remark === 'Common' ? '<span class="common-badge">Common</span>' : (bp.remark || '')}</td>
+                </tr>`;
             });
         }
 
-        function updateStatusTable() {
-            const tbody = document.getElementById('status-tbody');
-            tbody.innerHTML = '';
-
-            const sorted = [...blindStatuses].sort((a, b) => {
-                const order = { 'Installed': 1, 'Verified': 2, 'Planned': 3, 'Removed': 4 };
-                return (order[a.status] || 99) - (order[b.status] || 99);
-            });
-
-            sorted.forEach(bs => {
-                const bp = blindPoints.find(p => p.id === bs.blindPointId);
-                if (!bp) return;
-
-                const badgeClass = {
-                    'Planned': 'bcp-planned',
-                    'Installed': 'bcp-installed',
-                    'Verified': 'bcp-verified text-dark',
-                    'Removed': 'bcp-removed'
-                }[bs.status];
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${bp.tagCode}</strong></td>
-                        <td><small>${bs.workOrderNo}</small></td>
-                        <td><span class="badge ${badgeClass}">${bs.status}</span></td>
-                        <td><small>${bs.lastUpdated}</small></td>
-                    </tr>
-                `;
-            });
-        }
-
-        // ============================================
-        // UTILITY
-        // ============================================
-
-        function showAlert(type, message) {
-            const alertDiv = document.getElementById('field-alert');
-            const alertClass = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.className = alertClass;
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            setTimeout(() => {
-                alertDiv.className = '';
-                alertDiv.innerHTML = '';
-            }, 5000);
-        }
-
-        // Start app
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
